@@ -11,17 +11,22 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.example.eventscheduler.R;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 public class SchedulerActivity extends AppCompatActivity {
 
@@ -46,10 +51,12 @@ public class SchedulerActivity extends AppCompatActivity {
     private ImageView close, accept;
     private EditText eventName, eventNote;
     private TextView fromDate, toDate;
-    private RelativeLayout rlFrom, rlTo;
+    private RelativeLayout rlFrom, rlTo, rlSetAlarm;
+    private Spinner spinAlarmTimes;
     private Context context;
 
-    private DatePickerDialog.OnDateSetListener orderDateSetListener;
+    private List<String> alarmTimes = new ArrayList<>();
+
     private DatePickerDialog.OnDateSetListener fromDateSetListener;
 
 
@@ -59,10 +66,63 @@ public class SchedulerActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scheduler);
 
+        populateAlarmTimes();
         init();
         onClickListeners();
+        spinnerSetUp();
+        onTimeSelectedListener();
+
     }
 
+    private void populateAlarmTimes() {
+
+        alarmTimes.add(0,"None");
+        alarmTimes.add("Before the event");
+        alarmTimes.add("5 minutes before");
+        alarmTimes.add("15 minutes before");
+        alarmTimes.add("30 minutes before");
+        alarmTimes.add("1 hour before");
+        alarmTimes.add("1 day before");
+        alarmTimes.add("1 week before");
+    }
+
+    private void onTimeSelectedListener() {
+
+        spinAlarmTimes.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+
+                if (parent.getItemAtPosition(position).equals("None")){
+
+                    //do nothing
+
+                }else {
+
+                    String item = parent.getItemAtPosition(position).toString();
+
+                    Toast.makeText(parent.getContext(), "Alarm at: "+ position, Toast.LENGTH_SHORT).show();
+                }
+
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+    }
+
+    private void spinnerSetUp() {
+
+        Log.d(TAG, "spinnerFunction: "+alarmTimes);
+
+        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item,alarmTimes);
+
+        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        spinAlarmTimes.setAdapter(spinnerAdapter);
+
+    }
 
 
     private void init() {
@@ -75,6 +135,8 @@ public class SchedulerActivity extends AppCompatActivity {
         toDate = findViewById(R.id.toDate);
         rlFrom = findViewById(R.id.rlFrom);
         rlTo = findViewById(R.id.rlTo);
+        rlSetAlarm = findViewById(R.id.rlSetAlarm);
+        spinAlarmTimes = findViewById(R.id.spinAlarmTimes);
 
 
     }
@@ -115,6 +177,8 @@ public class SchedulerActivity extends AppCompatActivity {
 
                 //setting the date
                 toDatePicker();
+
+                //Log.d(TAG, "onClick: "+mYear+"-"+mMonth+1+"-"+mDay+"-"+mHour+"-"+mMinute);
 
             }
         });
