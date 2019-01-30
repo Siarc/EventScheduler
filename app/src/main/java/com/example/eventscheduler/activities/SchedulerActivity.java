@@ -1,6 +1,8 @@
 package com.example.eventscheduler.activities;
 
+import android.app.AlarmManager;
 import android.app.DatePickerDialog;
+import android.app.PendingIntent;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -23,16 +25,20 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.example.eventscheduler.R;
+import com.example.eventscheduler.utils.AlarmBroadCastReceiver;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class SchedulerActivity extends AppCompatActivity {
 
     private static final String TAG = "SchedulerActivity";
-
-
 
     String from_date_time = "";
     int mYear;
@@ -53,7 +59,6 @@ public class SchedulerActivity extends AppCompatActivity {
     private TextView fromDate, toDate;
     private RelativeLayout rlFrom, rlTo, rlSetAlarm;
     private Spinner spinAlarmTimes;
-    private Context context;
 
     private List<String> alarmTimes = new ArrayList<>();
 
@@ -71,6 +76,22 @@ public class SchedulerActivity extends AppCompatActivity {
         onClickListeners();
         spinnerSetUp();
         onTimeSelectedListener();
+
+    }
+
+    private void init() {
+
+        close =  findViewById(R.id.close);
+        accept =  findViewById(R.id.accept);
+        eventName = findViewById(R.id.eventName);
+        eventNote = findViewById(R.id.eventNote);
+        fromDate = findViewById(R.id.fromDate);
+        toDate = findViewById(R.id.toDate);
+        rlFrom = findViewById(R.id.rlFrom);
+        rlTo = findViewById(R.id.rlTo);
+        rlSetAlarm = findViewById(R.id.rlSetAlarm);
+        spinAlarmTimes = findViewById(R.id.spinAlarmTimes);
+
 
     }
 
@@ -92,22 +113,14 @@ public class SchedulerActivity extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 
-                if (parent.getItemAtPosition(position).equals("None")){
-
-                    //do nothing
-
-                }else {
-
-                    String item = parent.getItemAtPosition(position).toString();
-
-                    Toast.makeText(parent.getContext(), "Alarm at: "+ position, Toast.LENGTH_SHORT).show();
-                }
+                Log.d(TAG, "onItemSelected: "+parent.getItemAtPosition(position).toString());
 
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
 
+                //do nothing
             }
         });
     }
@@ -125,20 +138,60 @@ public class SchedulerActivity extends AppCompatActivity {
     }
 
 
-    private void init() {
-
-        close =  findViewById(R.id.close);
-        accept =  findViewById(R.id.accept);
-        eventName = findViewById(R.id.eventName);
-        eventNote = findViewById(R.id.eventNote);
-        fromDate = findViewById(R.id.fromDate);
-        toDate = findViewById(R.id.toDate);
-        rlFrom = findViewById(R.id.rlFrom);
-        rlTo = findViewById(R.id.rlTo);
-        rlSetAlarm = findViewById(R.id.rlSetAlarm);
-        spinAlarmTimes = findViewById(R.id.spinAlarmTimes);
 
 
+    private void setAlarm(String toString) {
+
+        int requestCode = getRandomRequestCode(1,999999999);
+        long time = formatTime();
+
+        Log.d(TAG, "setAlarm: RequestCode: "+requestCode);
+        Log.d(TAG, "setAlarm: time before format: "+ time);
+
+
+
+        //Alarm Manager
+        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        //Intent for Broadcast receiver
+        Intent intent = new Intent(this, AlarmBroadCastReceiver.class);
+        //Pending intent
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this,requestCode,intent,0);
+        //setting up alarm
+
+
+
+
+        Log.d(TAG, "setAlarm: time: "+time);
+
+        alarmManager.set(AlarmManager.RTC_WAKEUP,time,pendingIntent);
+
+
+    }
+
+    private long formatTime() {
+
+        long time = 0;
+        SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy HH:mm");
+        Date mDate;
+
+        Log.d(TAG, "formatTime: Date trying to format: "+ fromDate.getText().toString());
+        try {
+            mDate = format.parse(fromDate.getText().toString());
+            Log.d(TAG, "formatTime: mDate: "+mDate);
+            time = mDate.getTime();
+            Log.d(TAG, "formatTime: time: "+time);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return time;
+
+    }
+
+    //Random number function
+    private int getRandomRequestCode(int min, int max) {
+
+        int randomNum = ThreadLocalRandom.current().nextInt(min,max+1);
+        return randomNum;
     }
 
     private void onClickListeners() {
@@ -156,8 +209,20 @@ public class SchedulerActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                Intent intent = new Intent(SchedulerActivity.this, MainActivity.class);
-                startActivity(intent);
+                //setting up alarm
+                setAlarm(spinAlarmTimes.getSelectedItem().toString());
+
+//                if(spinAlarmTimes.getSelectedItem().toString().equals("None")){
+//
+//                    //does not do anything for the alarm itself
+//                    Log.d(TAG, "onClick: doing nothing");
+//
+//                }else {
+//
+//                }
+
+                //Intent intent = new Intent(SchedulerActivity.this, MainActivity.class);
+                //startActivity(intent);
             }
         });
 
@@ -185,8 +250,6 @@ public class SchedulerActivity extends AppCompatActivity {
 
     }
 
-
-
     private void fromDatePicker() {
 
         // Get Current Date
@@ -201,7 +264,20 @@ public class SchedulerActivity extends AppCompatActivity {
                     @Override
                     public void onDateSet(DatePicker view, int year,int monthOfYear, int dayOfMonth) {
 
-                        from_date_time = dayOfMonth + "-" + (monthOfYear + 1) + "-" + year;
+
+
+                        if(dayOfMonth<10){
+                            from_date_time = "0"+dayOfMonth;
+                        }else {
+                            from_date_time = String.valueOf(dayOfMonth);
+                        }
+                        if(monthOfYear<10){
+                            from_date_time = from_date_time+"-0" + (monthOfYear + 1) + "-" + year;
+                        }else{
+                            from_date_time = from_date_time+"-" + (monthOfYear + 1) + "-" + year;
+                        }
+
+
                         //*************Call Time Picker Here ********************
                         fromTimePicker();
                     }
@@ -226,8 +302,10 @@ public class SchedulerActivity extends AppCompatActivity {
 
                         mHour = hourOfDay;
                         mMinute = minute;
+                        String date = from_date_time+" "+String.format("%02d:%02d", hourOfDay, minute);
 
-                        fromDate.setText(from_date_time+" "+hourOfDay + ":" + minute);
+                        fromDate.setText(date);
+                        Log.d(TAG, "onTimeSet: "+date);
                     }
                 }, mHour, mMinute, false);
         timePickerDialog.show();
