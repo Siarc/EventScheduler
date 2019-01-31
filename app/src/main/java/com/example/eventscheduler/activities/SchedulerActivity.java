@@ -6,8 +6,6 @@ import android.app.PendingIntent;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -22,7 +20,6 @@ import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
-import android.widget.Toast;
 
 import com.example.eventscheduler.R;
 import com.example.eventscheduler.utils.AlarmBroadCastReceiver;
@@ -31,9 +28,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class SchedulerActivity extends AppCompatActivity {
@@ -97,8 +94,7 @@ public class SchedulerActivity extends AppCompatActivity {
 
     private void populateAlarmTimes() {
 
-        alarmTimes.add(0,"None");
-        alarmTimes.add("Before the event");
+        alarmTimes.add(0,"Before the event");
         alarmTimes.add("5 minutes before");
         alarmTimes.add("15 minutes before");
         alarmTimes.add("30 minutes before");
@@ -129,7 +125,7 @@ public class SchedulerActivity extends AppCompatActivity {
 
         Log.d(TAG, "spinnerFunction: "+alarmTimes);
 
-        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item,alarmTimes);
+        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(this,android.R.layout.simple_spinner_item,alarmTimes);
 
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
@@ -137,18 +133,13 @@ public class SchedulerActivity extends AppCompatActivity {
 
     }
 
-
-
-
     private void setAlarm(String toString) {
 
-        int requestCode = getRandomRequestCode(1,999999999);
+        int requestCode = getRandomRequestCode();
         long time = formatTime();
 
         Log.d(TAG, "setAlarm: RequestCode: "+requestCode);
         Log.d(TAG, "setAlarm: time before format: "+ time);
-
-
 
         //Alarm Manager
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
@@ -158,20 +149,20 @@ public class SchedulerActivity extends AppCompatActivity {
         PendingIntent pendingIntent = PendingIntent.getBroadcast(this,requestCode,intent,0);
         //setting up alarm
 
-
-
-
         Log.d(TAG, "setAlarm: time: "+time);
 
-        alarmManager.set(AlarmManager.RTC_WAKEUP,time,pendingIntent);
+        if (alarmManager != null) {
+            alarmManager.set(AlarmManager.RTC_WAKEUP,time,pendingIntent);
+        }
 
 
     }
 
+    //format time from getText
     private long formatTime() {
 
         long time = 0;
-        SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy HH:mm");
+        SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy HH:mm", Locale.US);
         Date mDate;
 
         Log.d(TAG, "formatTime: Date trying to format: "+ fromDate.getText().toString());
@@ -188,10 +179,9 @@ public class SchedulerActivity extends AppCompatActivity {
     }
 
     //Random number function
-    private int getRandomRequestCode(int min, int max) {
+    private int getRandomRequestCode() {
 
-        int randomNum = ThreadLocalRandom.current().nextInt(min,max+1);
-        return randomNum;
+        return ThreadLocalRandom.current().nextInt(1, 999999999 +1);
     }
 
     private void onClickListeners() {
@@ -302,7 +292,7 @@ public class SchedulerActivity extends AppCompatActivity {
 
                         mHour = hourOfDay;
                         mMinute = minute;
-                        String date = from_date_time+" "+String.format("%02d:%02d", hourOfDay, minute);
+                        String date = from_date_time+" "+String.format(Locale.US,"%02d:%02d", hourOfDay, minute);
 
                         fromDate.setText(date);
                         Log.d(TAG, "onTimeSet: "+date);
@@ -352,8 +342,9 @@ public class SchedulerActivity extends AppCompatActivity {
 
                         nHour = hourOfDay;
                         nMinute = minute;
+                        String date = to_date_time+" "+String.format(Locale.US,"%02d:%02d", hourOfDay, minute);
 
-                        toDate.setText(to_date_time+" "+hourOfDay + ":" + minute);
+                        toDate.setText(date);
                     }
                 }, nHour, nMinute, false);
         timePickerDialog.show();

@@ -7,7 +7,9 @@
     <string name="from">From</string>
     <string name="date">Date</string>
     <string name="to">To</string>
+    <string name="event_reminder">Event Reminder</string>
     <string name="alarm">Alarm</string>
     <string name="note">Note</string>
+    <string name="sample_date">00&#8211;00&#8211;0000 00:00</string>
 
 </resources>
