@@ -1,5 +1,6 @@
 package com.example.eventscheduler.activities;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import android.content.Intent;
@@ -7,6 +8,7 @@ import android.os.Bundle;
 import androidx.annotation.Nullable;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.widget.Toolbar;
@@ -99,10 +101,25 @@ public class MainActivity extends AppCompatActivity {
             public void onChanged(@Nullable List<Event> events) {
 
                 //update recyclerView
-                eventAdapter.setEvents(events);
+                eventAdapter.submitList(events);
                 Log.d(TAG, "onChanged: "+events);
             }
         });
+
+        new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0,
+                ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+
+                eventViewModel.delete(eventAdapter.getEventAt(viewHolder.getAdapterPosition()));
+                Toast.makeText(MainActivity.this, "Event deleted", Toast.LENGTH_SHORT).show();
+            }
+        }).attachToRecyclerView(recyclerView);
     }
 
 
@@ -122,7 +139,10 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.delete_all_events) {
+
+            eventViewModel.deleteAllEvents();
+            Toast.makeText(this, "All Events deleted", Toast.LENGTH_SHORT).show();
             return true;
         }
 

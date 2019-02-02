@@ -11,5 +11,6 @@
     <string name="alarm">Alarm</string>
     <string name="note">Note</string>
     <string name="sample_date">00&#8211;00&#8211;0000 00:00</string>
+    <string name="delete_all_events">Delete all events</string>
 
 </resources>

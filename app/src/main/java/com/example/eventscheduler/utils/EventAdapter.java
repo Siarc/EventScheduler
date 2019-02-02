@@ -1,10 +1,13 @@
 package com.example.eventscheduler.utils;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.TextView;
 
 import com.example.eventscheduler.R;
@@ -13,9 +16,25 @@ import com.example.eventscheduler.dao.Event;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventHolder> {
+public class EventAdapter extends ListAdapter<Event,EventAdapter.EventHolder> {
 
-    private List<Event> events = new ArrayList<>();
+    private AdapterView.OnItemClickListener listener;
+
+    public EventAdapter() {
+        super(DIFF_CALLBACK);
+    }
+
+    private static final DiffUtil.ItemCallback<Event> DIFF_CALLBACK = new DiffUtil.ItemCallback<Event>() {
+        @Override
+        public boolean areItemsTheSame(@NonNull Event oldItem, @NonNull Event newItem) {
+            return oldItem.getId() == newItem.getId();
+        }
+
+        @Override
+        public boolean areContentsTheSame(@NonNull Event oldItem, @NonNull Event newItem) {
+            return false;
+        }
+    };
 
     @NonNull
     @Override
@@ -30,23 +49,16 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventHolder>
     @Override
     public void onBindViewHolder(@NonNull EventHolder eventHolder, int i) {
 
-        Event currentEvent = events.get(i);
+        Event currentEvent = getItem(i);
         eventHolder.tvEventName.setText(currentEvent.getEventName());
         eventHolder.tvEventNote.setText(currentEvent.getNote());
         eventHolder.tvEventDate.setText(currentEvent.getFromDate());
         eventHolder.tvEventReminder.setText(currentEvent.getAlarmReminder());
     }
 
-    @Override
-    public int getItemCount() {
-        return events.size();
-    }
-
-    public void setEvents(List<Event> events){
-
-        this.events = events;
-        notifyDataSetChanged();
-
+    //return event when item at position swiped
+    public Event getEventAt(int position) {
+        return getItem(position);
     }
 
     class EventHolder extends RecyclerView.ViewHolder{
