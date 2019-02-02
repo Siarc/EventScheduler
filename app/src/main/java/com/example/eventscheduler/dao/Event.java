@@ -1,7 +1,7 @@
-package com.example.eventscheduler.databaseModels;
+package com.example.eventscheduler.dao;
 
-import android.arch.persistence.room.Entity;
-import android.arch.persistence.room.PrimaryKey;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
 
 @Entity(tableName = "event_table")
 public class Event {

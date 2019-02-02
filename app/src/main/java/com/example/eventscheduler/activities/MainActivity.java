@@ -1,15 +1,15 @@
 package com.example.eventscheduler.activities;
 
-import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ViewModelProviders;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
+import androidx.annotation.Nullable;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.appcompat.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.view.Menu;
@@ -18,7 +18,7 @@ import android.widget.Toast;
 
 import com.example.eventscheduler.roomDatabase.EventViewModel;
 import com.example.eventscheduler.R;
-import com.example.eventscheduler.databaseModels.Event;
+import com.example.eventscheduler.dao.Event;
 import com.example.eventscheduler.utils.EventAdapter;
 
 import java.util.List;
@@ -54,6 +54,35 @@ public class MainActivity extends AppCompatActivity {
         });
 
     }
+
+//    @Override
+//    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+//        super.onActivityResult(requestCode, resultCode, data);
+//
+//        Log.d(TAG, "onActivityResult: data result function");
+//
+//
+//        if(requestCode == ADD_EVENT_REQUEST && resultCode == RESULT_OK){
+//
+//            Log.d(TAG, "onActivityResult: requestCode and resultCode matched");
+//
+//            String eventName = data.getStringExtra(SchedulerActivity.EXTRA_NAME);
+//            String eventNote = data.getStringExtra(SchedulerActivity.EXTRA_NOTE);
+//            String eventFromDate = data.getStringExtra(SchedulerActivity.EXTRA_FROM_DATE);
+//            String eventToDate = data.getStringExtra(SchedulerActivity.EXTRA_TO_DATE);
+//            String eventReminder = data.getStringExtra(SchedulerActivity.EXTRA_REMINDER);
+//            int eventRequestCode = Integer.parseInt(data.getStringExtra(SchedulerActivity.EXTRA_REQUEST_CODE));
+//
+//
+//            Event event = new Event(eventName,eventFromDate,eventToDate,eventReminder,eventNote,eventRequestCode);
+//            eventViewModel.insert(event);
+//
+//            Toast.makeText(this, "Event Saved", Toast.LENGTH_SHORT).show();
+//
+//        }else {
+//            Toast.makeText(this, "Note not saved", Toast.LENGTH_SHORT).show();
+//        }
+//    }
 
     private void setRecyclerView() {
 

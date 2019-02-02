@@ -1,7 +1,6 @@
 package com.example.eventscheduler.utils;
 
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.media.MediaPlayer;
@@ -9,7 +8,7 @@ import android.util.Log;
 
 import com.example.eventscheduler.R;
 
-import static android.support.v4.content.WakefulBroadcastReceiver.startWakefulService;
+import static androidx.legacy.content.WakefulBroadcastReceiver.startWakefulService;
 
 public class AlarmBroadCastReceiver extends BroadcastReceiver {
 
